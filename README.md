@@ -9,6 +9,10 @@ No Database Setup (AUTOMATIC)
 - <a href = "https://sites.google.com/view/mightyteaapp/home">Online Version</a> <br>
 - Transactions Management <br>
 - Inventory Management <br>
-- Account Management <br>
+- Account Management
+
+<h1> Notes: </h1>
+username: admin <br>
+password: admin 
 
 <h1> Screenshots: </h1>
