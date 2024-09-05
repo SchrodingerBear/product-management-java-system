@@ -18,6 +18,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -116,27 +118,28 @@ public class POS extends JFrame {
 	        item.setBounds(6, 46, 465, 200);
 	        contentPane.add(item);
 	
-	        try (BufferedReader br = new BufferedReader(new FileReader("database/items.txt"))) {
-	            DefaultTableModel model = new DefaultTableModel();
-	            model.addColumn("Product");
-	            model.addColumn("Price");
-	
-	            String line;
-	            while ((line = br.readLine()) != null) {
-	                String[] parts = line.split(",");
-	                if (parts.length == 2) {
-	                    String product = parts[0].trim();
-	                    String price = parts[1].trim();
-	                    model.addRow(new Object[]{product, price});
-	                }
+	        DefaultTableModel model = new DefaultTableModel() {
+	            @Override
+	            public boolean isCellEditable(int row, int column) {
+	                return false;
 	            }
-	
-	            itable = new JTable(model);
-	            itable.setFont(new Font("Calibri Light", Font.PLAIN, 13));
-	            item.setViewportView(itable);
-	        } catch (IOException e) {
-	            e.printStackTrace();
+	        };
+
+	        model.addColumn("Product");
+	        model.addColumn("Price");
+
+	        List<Map<String, Object>> results = database.select("items", "name, price", null);
+
+	        for (Map<String, Object> row : results) {
+	            String product = (String) row.get("name");
+	            int price = (int) row.get("price");
+	            model.addRow(new Object[]{product, price});
 	        }
+
+
+	        JTable itable = new JTable(model);
+	        itable.setFont(new Font("Calibri Light", Font.PLAIN, 13));
+	        item.setViewportView(itable);
 	        
 	        JScrollPane cart = new JScrollPane();
 	        cart.setBounds(6, 254, 465, 215);
@@ -171,7 +174,6 @@ public class POS extends JFrame {
 	                        String message = "Item: " + itemName + "\n" +
 	                                         "Price: " + itemPrice;
 
-	                        // Display the message with buttons
 	                        int option = JOptionPane.showOptionDialog(
 	                            null,
 	                            message,
@@ -520,18 +522,9 @@ public class POS extends JFrame {
 	        transactions.setFont(new Font("Copperplate Gothic Bold", Font.PLAIN, 15));
 	        JMenu inventory = new JMenu("Inventory |");
 	        inventory.setFont(new Font("Copperplate Gothic Bold", Font.PLAIN, 15));
-	        JMenu extras = new JMenu("| Extras |");
-	        extras.setFont(new Font("Copperplate Gothic Bold", Font.PLAIN, 15));
-	        menu.add(extras);
 	        menu.add(transactions);
 	        menu.add(inventory);
 	        menu.add(manageAccount);
-	
-	        JMenuItem ov = new JMenuItem("Online Version");
-	        extras.add(ov);
-	        
-	        JMenuItem credentials = new JMenuItem("Credentials");
-	        extras.add(credentials);
 	        
 	        JMenuItem password = new JMenuItem("Change Password");
 	        manageAccount.add(password);
@@ -543,7 +536,6 @@ public class POS extends JFrame {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-				       // Ask for username and new password
 			        String username = JOptionPane.showInputDialog(null, "Enter username:");
 			        
 			        if (username == null) {
@@ -561,7 +553,6 @@ public class POS extends JFrame {
 			        	return;
 					}
 
-			        // Read accounts from file, update password, and write back to file
 			        List<String> accounts = new ArrayList<>();
 			        try (BufferedReader br = new BufferedReader(new FileReader("database/accounts.txt"))) {
 			            String line;
@@ -670,29 +661,6 @@ public class POS extends JFrame {
 	        JMenuItem remove = new JMenuItem("Remove Items");
 	        inventory.add(remove);
 	        
-
-	        ov.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					try {
-			            Desktop.getDesktop().browse(new URI("https://sites.google.com/view/mightyteaapp/home"));
-			        } catch (IOException | URISyntaxException ex) {
-			            ex.printStackTrace();
-			        }
-				}
-			});
-	        
-	        credentials.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					try {
-			            Desktop.getDesktop().browse(new URI("https://bit.ly/scvp_profile"));
-			        } catch (IOException | URISyntaxException ex) {
-			            ex.printStackTrace();
-			        }
-				}
-			});
-	        
 	        transaction.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -727,68 +695,42 @@ public class POS extends JFrame {
 			        }
 				}
 			});
-	        
+
 	        remove.addActionListener(new ActionListener() {
 	            @Override
 	            public void actionPerformed(ActionEvent e) {
-	                String productName = JOptionPane.showInputDialog(null, "Enter product name:", "Product Editor",
-	                        JOptionPane.PLAIN_MESSAGE);
+	                try {
+	                    List<Map<String, Object>> result = database.select("items", "name", null);
+	                    List<String> productList = new ArrayList<>();
 
-	                if (productName == null) {
-	                    return;
-	                } else if (productName.isEmpty()) {
-	                    JOptionPane.showMessageDialog(null, "Field Empty", "Remove Item", JOptionPane.WARNING_MESSAGE);
-	                    return;
-	                }
-
-	                boolean itemRemoved = false; // Variable to track if any items were removed
-
-	                if (productName != null && !productName.isEmpty()) {
-	                    try {
-	                        // Read the items.txt file
-	                        BufferedReader reader = new BufferedReader(new FileReader("database/items.txt"));
-	                        StringBuilder itemsData = new StringBuilder();
-	                        String line;
-
-	                        while ((line = reader.readLine()) != null) {
-	                            String[] item = line.split(", ");
-	                            String value1 = item[0];
-
-	                            if (!value1.equalsIgnoreCase(productName)) {
-	                                // If the first value does not match the specified product name, append it to the itemsData
-	                                itemsData.append(line).append("\n");
-	                            } else {
-	                                itemRemoved = true; // Set the flag to true if an item is removed
-	                            }
-	                        }
-
-	                        reader.close();
-
-	                        if (itemRemoved) {
-	                            // Write the updated data back to the items.txt file
-	                            BufferedWriter writer = new BufferedWriter(new FileWriter("database/items.txt"));
-	                            writer.write(itemsData.toString());
-	                            writer.close();
-
-	                            JOptionPane.showMessageDialog(null, "Item removed successfully!", "Product Editor",
-	                                    JOptionPane.INFORMATION_MESSAGE);
-	                        } else {
-	                            JOptionPane.showMessageDialog(null, "No matching items found.", "Product Editor",
-	                                    JOptionPane.INFORMATION_MESSAGE);
-	                        }
-	                    } catch (IOException removerror) {
-	                        JOptionPane.showMessageDialog(null, "An error occurred while removing the item", "Product Editor",
-	                                JOptionPane.ERROR_MESSAGE);
-	                        removerror.printStackTrace();
+	                    for (Map<String, Object> row : result) {
+	                        productList.add((String) row.get("name"));
 	                    }
-	                } else {
-	                    JOptionPane.showMessageDialog(null, "Invalid product name", "Product Editor", JOptionPane.WARNING_MESSAGE);
+
+	                    if (productList.isEmpty()) {
+	                        JOptionPane.showMessageDialog(null, "No items available to remove.", "Product Editor", JOptionPane.INFORMATION_MESSAGE);
+	                        return;
+	                    }
+
+	                    String[] productsArray = productList.toArray(new String[0]);
+	                    JComboBox<String> productComboBox = new JComboBox<>(productsArray);
+
+	                    int resultDialog = JOptionPane.showConfirmDialog(null, productComboBox, "Select Product to Remove", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+	                    if (resultDialog == JOptionPane.OK_OPTION) {
+	                        String selectedProduct = (String) productComboBox.getSelectedItem();
+	                        if (selectedProduct != null && !selectedProduct.isEmpty()) {
+	                        	database.delete("items", "name = '" + selectedProduct + "'");
+	                            JOptionPane.showMessageDialog(null, "Item removed successfully!", "Product Editor", JOptionPane.INFORMATION_MESSAGE);
+	                        }
+	                    }
+	                } catch (Exception removerror) {
+	                    JOptionPane.showMessageDialog(null, "An error occurred while removing the item", "Product Editor", JOptionPane.ERROR_MESSAGE);
+	                    removerror.printStackTrace();
 	                }
-	                readItems();
 	            }
 	        });
 
-	        
 	        JMenuItem add = new JMenuItem("Add Items");
 	        inventory.add(add);
 	
