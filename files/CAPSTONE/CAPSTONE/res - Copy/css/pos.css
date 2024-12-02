@@ -1,0 +1,14 @@
+/* POS */
+.pos-icon {
+    width: 37px;
+    color: black;
+}
+
+/* DARK MODE CSS */
+body[data-theme=dark] hr {
+    background-color: white;
+}
+
+body[data-theme=dark] .pos-icon {
+    color: white;
+}

@@ -1,0 +1,17 @@
+BUSINESS INFORMATION:
+Mighty Tea FoodHauz
+Baguio City, PHISCI
+0948 - 315 - 6716
+December 2, 2024
+02:35:16 PM
+
+CART:				
+Itemname: test	
+Price: 15.00	Quantity: 9	Amount: 135.00
+
+
+TRANSACTION INFORMATION: 
+Customer Name: CUSTOMER NAME
+Total: 135.00
+Payment: 0.00
+Change: -135.00

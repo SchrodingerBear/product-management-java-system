@@ -1,0 +1,16 @@
+START:
+You woke up in a Shore with a Dizzy Head
+You don't know what happened, why you are here and who you are
+
+Not far a way from you is a wrecked Ship
+There is nothing around you but a Large Dark Forest that gives you chills
+You stand up, and start walking to find clue..
+
+Village:
+Guard: Woah, are you ok? You seems lost
+Guard: Do you have a name? Where did you come From?
+Player: I do not know my Name, I do not remember anything
+Guard: Oh poor soul, I'll let you in, go Find Chief, he can help you
+
+
+

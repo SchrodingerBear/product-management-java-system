@@ -1,0 +1,4 @@
+Add a view for all accounts
+change the sound
+add information
+lock the files

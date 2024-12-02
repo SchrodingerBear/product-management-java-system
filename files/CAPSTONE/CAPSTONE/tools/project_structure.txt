@@ -1,0 +1,3 @@
+C:\xampp\htdocs\CAPSTONE\tools\project-structure.bat
+C:\xampp\htdocs\CAPSTONE\tools\project-structure.txt
+C:\xampp\htdocs\CAPSTONE\tools\project_structure.txt
